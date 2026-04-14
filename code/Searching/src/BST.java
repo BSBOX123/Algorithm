@@ -64,11 +64,58 @@ public class BST<K extends Comparable<K>, V> {
         return keyList;
     }
 
-    private void inorder(Node<K, V> x, ArrayList<K> keyList) {
+    private void inorder(Node<K, V> x, ArrayList<K> keyList) { //중위
         if( x != null ) {
             inorder(x.left, keyList);
             keyList.add(x.key);
             inorder(x.right, keyList);
         }
+    }
+
+    public void delete(K key) {
+        if(root == null) return;
+        Node<K,V> x, y, p;
+        x = treeSearch(key);
+
+        if(!key.equals(x.key))
+            return;
+        if(x == root || isTwoNode(x)) {
+            if(isLeaf(x)) { root = null; return;}
+            else if(!isTwoNode(x)) {
+                root = (x.right == null) ? x.left : x.right;
+                root.parent = null;
+                return;
+            }
+            else {
+                y = min(x.right);
+                x.key = y.key;
+                x.value = y.value;
+                p = y.parent;
+                relink(p, y.right, y == p.left);
+                rebalanceDelete(p, y);
+            }
+        }
+        else {
+            p = x.parent;
+            if(x.right == null)
+                relink(p, x.left, x==p.left);
+            else if(x.left == null)
+                relink(p, x.right, x == p.left);
+            rebalanceDelete(p, x);
+        }
+    }
+    public boolean contains(K key) { return get(key) != null; }
+    public boolean isEmpty() { return root == null; }
+
+    protected boolean isLeaf(Node<K, V> x) {
+        return x.left == null && x.right == null;
+    }
+
+    protected boolean isTwoNode(Node<K, V> x) {
+        return x.left != null && x.right != null;
+    }
+
+    protected void relink(Node<K, V> parent, Node<K, V> child, boolean makeLeft) {
+
     }
 }
