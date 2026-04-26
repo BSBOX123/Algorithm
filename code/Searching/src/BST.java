@@ -98,7 +98,7 @@ public class BST<K extends Comparable<K>, V> {
         else {
             p = x.parent;
             if(x.right == null)
-                relink(p, x.left, x==p.left);
+                relink(p, x.left, x == p.left);
             else if(x.left == null)
                 relink(p, x.right, x == p.left);
             rebalanceDelete(p, x);
@@ -116,6 +116,81 @@ public class BST<K extends Comparable<K>, V> {
     }
 
     protected void relink(Node<K, V> parent, Node<K, V> child, boolean makeLeft) {
+        if(child != null) child.parent = parent;
+        if(makeLeft) parent.left = child;
+        else parent.right = child;
+    }
 
+    protected Node<K, V> min(Node<K, V> x) {while (x.left != null) x = x.left; return x;}
+
+    public K min() {
+        if(root == null) return null;
+        Node<K, V> x = root;
+        while (x.left != null)
+            x = x.left;
+        return x.key;
+    }
+
+    public K max() {
+        if(root == null) return null;
+        Node<K, V> x = root;
+        while (x.right != null)
+            x = x.right;
+        return x.key;
+    }
+
+    public K flood(K key) {
+        if(root == null || key == null) return null;
+        Node<K,V> x = flood(root, key);
+        if( x == null) return null;
+        else return x.key;
+    }
+
+    private Node<K, V> flood(Node<K, V> x, K key) {
+        if(x == null) return null;
+        int cmp = key.compareTo(x.key);
+        if(cmp == 0) return x;
+        if(cmp < 0) return flood(x.left, key);
+        Node<K,V> t = flood(x.right, key);
+        if( t != null ) return t;
+        else return x;
+    }
+
+    public int rank(K key) {
+        if(root == null || key == null) return 0;
+        Node<K, V> x = root;
+        int num = 0;
+
+        while(x != null) {
+            int cmp = key.compareTo(x.key);
+            if(cmp < 0) x = x.left;
+            else if(cmp > 0) {
+                num += 1 + size(x.left);
+                x = x.right;
+            }
+            else {
+                num += size(x.left); break;
+            }
+        }
+        return num;
+    }
+
+    private int size(Node<K,V> x) {return (x != null) ? x.N : 0;}
+
+    public K select(int rank) {
+        if( root == null || rank < 0 || rank >= size())
+            return null;
+        Node<K, V> x = root;
+        while (true) {
+            int t = size(x.left);
+            if (rank < t)
+                x = x.left;
+            else if( rank > t) {
+                rank = rank - t - 1;
+                x = x.right;
+            }
+            else
+                return x.key;
+        }
     }
 }
